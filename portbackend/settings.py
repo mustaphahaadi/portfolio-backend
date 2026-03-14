@@ -3,7 +3,6 @@ Django settings for portbackend project.
 """
 
 from pathlib import Path
-from datetime import timedelta
 import os
 from dotenv import load_dotenv
 import dj_database_url
@@ -18,9 +17,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
+
+if not DEBUG and SECRET_KEY == 'django-insecure-default-key-change-in-production':
+    raise ValueError('DJANGO_SECRET_KEY must be set to a secure value in production')
 
 # Application definition
 INSTALLED_APPS = [
@@ -69,14 +71,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'portbackend.wsgi.application'
 
 # Database
+# Local development defaults to SQLite. If DATABASE_URL is set to a valid value,
+# it overrides SQLite (for Railway/managed Postgres).
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-db_from_env = dj_database_url.config(conn_max_age=600, default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
-DATABASES['default'].update(db_from_env)
+
+database_url = os.getenv('DATABASE_URL', '').strip()
+placeholder_tokens = ('user:pass@host:5432/dbname', '@host:5432')
+
+if database_url and not any(token in database_url for token in placeholder_tokens):
+    try:
+        DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
+    except Exception:
+        # Keep SQLite fallback if DATABASE_URL is malformed.
+        pass
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -130,6 +142,7 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175'
 ).split(',')
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -159,3 +172,19 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+
+# CSRF trusted origins (important when frontend and backend are on different domains)
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
+]
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True').lower() == 'true'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True').lower() == 'true'
+    SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'True').lower() == 'true'
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'

@@ -9,7 +9,7 @@ Backend API for a personal portfolio website, built with Django and Django REST 
 - Django REST Framework
 - django-filter
 - django-cors-headers
-- PostgreSQL (production / Docker), SQLite (local default)
+- PostgreSQL (production), SQLite (local default)
 - Gunicorn + WhiteNoise
 
 ## Features
@@ -27,8 +27,6 @@ portbackend/        # Django project config (settings, urls, wsgi, asgi)
 portfolio_api/      # Main app (models, serializers, viewsets, routes)
 manage.py
 requirements.txt
-Dockerfile
-docker-compose.yml
 ```
 
 ## Requirements
@@ -139,26 +137,12 @@ GET /api/tools/?name=python
 - Static files: served from `STATIC_ROOT` (`/staticfiles` in project root after collectstatic).
 - Media files: served from `/media/` in debug mode.
 
-## Docker
-
-Build and run with Docker Compose:
-
-```bash
-docker compose up --build
-```
-
-Services:
-
-- `web`: Django + Gunicorn on `:8000`
-- `db`: PostgreSQL on `:5432`
-
-The compose setup runs migrations automatically before starting Gunicorn.
-
 ## Production Notes
 
 - Set `DJANGO_DEBUG=False`.
 - Use a strong `DJANGO_SECRET_KEY`.
 - Set explicit `DJANGO_ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS`.
+- Set `CSRF_TRUSTED_ORIGINS` to your frontend domain.
 - Provide a production `DATABASE_URL`.
 - Run:
 
@@ -167,6 +151,19 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 gunicorn portbackend.wsgi:application --bind 0.0.0.0:$PORT
 ```
+
+### Production Environment File
+
+Use `.env.production.example` as the template for production variables.
+
+Required minimum in production:
+
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG=False`
+- `DJANGO_ALLOWED_HOSTS`
+- `DATABASE_URL`
+- `CORS_ALLOWED_ORIGINS`
+- `CSRF_TRUSTED_ORIGINS`
 
 ## Deployment (Railway)
 
