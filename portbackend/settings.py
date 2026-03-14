@@ -83,12 +83,18 @@ DATABASES = {
 database_url = os.getenv('DATABASE_URL', '').strip()
 placeholder_tokens = ('user:pass@host:5432/dbname', '@host:5432')
 
+if not DEBUG:
+    if not database_url:
+        raise ValueError('DATABASE_URL must be set in production')
+    if any(token in database_url for token in placeholder_tokens):
+        raise ValueError('DATABASE_URL contains a placeholder value and must be replaced in production')
+
 if database_url and not any(token in database_url for token in placeholder_tokens):
     try:
         DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
-    except Exception:
-        # Keep SQLite fallback if DATABASE_URL is malformed.
-        pass
+    except Exception as exc:
+        if not DEBUG:
+            raise ValueError('DATABASE_URL is invalid and could not be parsed') from exc
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

@@ -165,6 +165,8 @@ Required minimum in production:
 - `CORS_ALLOWED_ORIGINS`
 - `CSRF_TRUSTED_ORIGINS`
 
+If `DATABASE_URL` is missing in production, the app now fails fast during startup instead of silently falling back to SQLite.
+
 ## Deployment (Railway)
 
 `railway.toml` uses:
@@ -174,6 +176,14 @@ python manage.py migrate && python manage.py collectstatic --noinput && gunicorn
 ```
 
 Make sure required environment variables are configured in Railway.
+
+### Admin Login
+
+This backend does not expose a custom user login API.
+
+- Admin login is available at `/admin/`
+- Create the admin user with `python manage.py createsuperuser`
+- Run that only after Railway Postgres is attached and `DATABASE_URL` is set correctly
 
 ## Useful Commands
 
