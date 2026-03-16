@@ -139,7 +139,7 @@ All mock/fallback data scraped from the frontend components. Copy each section i
 |-------------|-------|
 | Icon        | fas fa-cloud |
 | Title       | Cloud Infrastructure |
-| Description | Designing and managing cloud infrastructure on AWS and GCP. Implementing IaC with Terraform and CloudFormation for reproducible, scalable environments. |
+| Description | Designing and managing cloud infrastructure on AWS. Implementing IaC with Terraform and CloudFormation for reproducible, scalable environments. |
 
 ### Service 2
 | Field       | Value |
