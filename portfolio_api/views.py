@@ -3,8 +3,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 import logging
 
 logger = logging.getLogger(__name__)
@@ -49,7 +47,6 @@ class ContactViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -57,7 +54,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['number', 'title']
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class ToolViewSet(viewsets.ModelViewSet):
     queryset = Tool.objects.all()
     serializer_class = ToolSerializer
@@ -65,7 +61,6 @@ class ToolViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
     ordering_fields = ['name']
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class ExperienceViewSet(viewsets.ModelViewSet):
     queryset = Experience.objects.all().order_by('-year')
     serializer_class = ExperienceSerializer
@@ -73,7 +68,6 @@ class ExperienceViewSet(viewsets.ModelViewSet):
     search_fields = ['company', 'position', 'description']
     ordering_fields = ['year', 'company']
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class EducationViewSet(viewsets.ModelViewSet):
     queryset = Education.objects.all().order_by('-year')
     serializer_class = EducationSerializer
@@ -81,7 +75,6 @@ class EducationViewSet(viewsets.ModelViewSet):
     search_fields = ['institution', 'description']
     ordering_fields = ['year', 'institution']
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
@@ -89,13 +82,11 @@ class ServiceViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description']
     ordering_fields = ['title']
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class TestimonialViewSet(viewsets.ReadOnlyModelViewSet):
     """Testimonials — read-only for public API."""
     queryset = Testimonial.objects.all()
     serializer_class = TestimonialSerializer
 
-@method_decorator(cache_page(60 * 5), name='dispatch')
 class CertificationViewSet(viewsets.ModelViewSet):
     queryset = Certification.objects.all().order_by('-id')
     serializer_class = CertificationSerializer
