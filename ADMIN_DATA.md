@@ -10,7 +10,7 @@ All mock/fallback data scraped from the frontend components. Copy each section i
 |-----------------|-------|
 | Name            | Mustapha Haadi Bugnaba |
 | Bio             | I architect and automate cloud infrastructure, build robust CI/CD pipelines, and orchestrate containers at scale. Passionate about reliability, scalability, and the art of keeping systems running smoothly. AWS, Docker, Kubernetes, Terraform — I speak fluent infrastructure. |
-| Roles (JSON)    | `["DevOps Engineer", "Cloud Architect", "Infrastructure Specialist"]` |
+| Roles (JSON)    | `["DevOps Engineer", "Cloud Engineer", "Software Engineer", "CI/CD Specialist"]` |
 | Profile Picture | *(upload manually)* |
 | Resume          | *(upload manually)* |
 | GitHub Link     | *(fill in)* |
