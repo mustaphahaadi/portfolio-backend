@@ -29,7 +29,6 @@ Thumbs.db
 *.log
 
 # Migrations
-*/migrations/*.py
 */migrations/__pycache__/
 
 # Coverage reports

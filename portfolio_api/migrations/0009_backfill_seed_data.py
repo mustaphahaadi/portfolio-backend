@@ -253,7 +253,7 @@ def noop_reverse(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('portfolio_api', '0008_seed_data'),
+        ('portfolio_api', '0007_certification'),
     ]
 
     operations = [
