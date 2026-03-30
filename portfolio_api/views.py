@@ -109,19 +109,25 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         data = serializer.data
 
+        def absolute_url(value):
+            if not value:
+                return None
+            parsed = urlparse(value)
+            if parsed.scheme and parsed.netloc:
+                return value
+            if value.startswith('/'):
+                return request.build_absolute_uri(value)
+            return request.build_absolute_uri(f'/{value}')
+
         # Prefer URL-based profile picture (free option, no object storage needed).
         # Fallback to uploaded file if URL is not set.
         picture_url = instance.profile_picture_url
         if picture_url:
-            parsed = urlparse(picture_url)
-            if parsed.scheme and parsed.netloc:
-                data['profile_picture'] = picture_url
-            else:
-                data['profile_picture'] = request.build_absolute_uri(picture_url)
+            data['profile_picture'] = absolute_url(picture_url)
         elif instance.profile_picture:
-            data['profile_picture'] = request.build_absolute_uri(instance.profile_picture.url)
+            data['profile_picture'] = absolute_url(instance.profile_picture.url)
 
         if instance.resume:
-            data['resume'] = request.build_absolute_uri(instance.resume.url)
+            data['resume'] = absolute_url(instance.resume.url)
         
         return Response(data)
