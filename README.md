@@ -194,6 +194,21 @@ If remote migrations still do not apply:
 - Run a one-off Railway command: `python manage.py migrate --noinput`.
 - Check deploy logs for `Applying portfolio_api.0011_profile_profile_picture_url... OK`.
 
+### Persistent Storage for Media Files
+
+Railway has an ephemeral filesystem — files uploaded to `/media/` disappear after each deploy. The `railway.toml` now configures a persistent volume mounted at `/app/media` to preserve profile pictures and resumes across deployments.
+
+**First time only:** After pushing this update, redeploy and run a one-off Django shell command to re-upload your files through the admin interface, or:
+
+1. In Railway, use a one-off command to create the media directory:
+   ```
+   mkdir -p /app/media/profile_pics /app/media/resumes
+   ```
+2. Access admin at `/admin/` and re-upload your resume and profile picture.
+3. They will now persist across future deployments.
+
+**Alternative (free, no uploads needed):** Use `profile_picture_url` in admin to link a free hosted image (GitHub raw URL, Imgur, etc.), and use `resume` URL field if you host the file elsewhere.
+
 ### Admin Login
 
 This backend does not expose a custom user login API.

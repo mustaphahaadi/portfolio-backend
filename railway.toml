@@ -5,3 +5,7 @@ builder = "nixpacks"
 startCommand = "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn portbackend.wsgi:application --bind 0.0.0.0:$PORT"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+[[volumes]]
+source = "media_volume"
+destination = "/app/media"
