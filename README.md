@@ -182,10 +182,17 @@ If `DATABASE_URL` is missing in production, the app now fails fast during startu
 `railway.toml` uses:
 
 ```text
-python manage.py migrate && python manage.py collectstatic --noinput && gunicorn portbackend.wsgi:application --bind 0.0.0.0:$PORT
+python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn portbackend.wsgi:application --bind 0.0.0.0:$PORT
 ```
 
 Make sure required environment variables are configured in Railway.
+
+If remote migrations still do not apply:
+
+- Confirm `DATABASE_URL` points to Railway Postgres (not a placeholder value).
+- Confirm the latest migration files are pushed (including `portfolio_api/migrations/0011_profile_profile_picture_url.py`).
+- Run a one-off Railway command: `python manage.py migrate --noinput`.
+- Check deploy logs for `Applying portfolio_api.0011_profile_profile_picture_url... OK`.
 
 ### Admin Login
 
