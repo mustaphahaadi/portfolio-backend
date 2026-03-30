@@ -137,6 +137,16 @@ GET /api/tools/?name=python
 - Static files: served from `STATIC_ROOT` (`/staticfiles` in project root after collectstatic).
 - Media files: served from `/media/` in debug mode.
 
+### Free Profile Photo Option (No S3 Needed)
+
+If you only need one profile image, use the `profile_picture_url` field on the Profile model/admin.
+
+- Put any public image URL there (for example from Cloudinary free tier, Imgur, GitHub raw URL, or another public CDN).
+- The API will return this URL as `profile_picture`.
+- If `profile_picture_url` is empty, it falls back to the uploaded `profile_picture` file.
+
+This allows you to avoid object storage services for a small portfolio setup.
+
 ## Production Notes
 
 - Set `DJANGO_DEBUG=False`.

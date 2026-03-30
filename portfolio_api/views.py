@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.core.mail import send_mail
 from django.conf import settings
+from urllib.parse import urlparse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -108,9 +109,18 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance)
         data = serializer.data
 
-        # Convert relative file URLs to absolute URLs
-        if instance.profile_picture:
+        # Prefer URL-based profile picture (free option, no object storage needed).
+        # Fallback to uploaded file if URL is not set.
+        picture_url = instance.profile_picture_url
+        if picture_url:
+            parsed = urlparse(picture_url)
+            if parsed.scheme and parsed.netloc:
+                data['profile_picture'] = picture_url
+            else:
+                data['profile_picture'] = request.build_absolute_uri(picture_url)
+        elif instance.profile_picture:
             data['profile_picture'] = request.build_absolute_uri(instance.profile_picture.url)
+
         if instance.resume:
             data['resume'] = request.build_absolute_uri(instance.resume.url)
         

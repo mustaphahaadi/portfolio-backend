@@ -4,6 +4,11 @@ class Profile(models.Model):
     name = models.CharField(max_length=100, default="Mustapha Haadi Bugnaba")
     roles = models.JSONField(help_text="Provide a list of roles, e.g. [\"Software Developer\", \"Problem Solver\"]", default=list)
     bio = models.TextField()
+    profile_picture_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="Public image URL for free hosting (Cloudinary/GitHub/Imgur), used before file upload",
+    )
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
     github_link = models.URLField(blank=True, null=True)
