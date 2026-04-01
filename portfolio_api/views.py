@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from django.core.mail import send_mail
 from django.conf import settings
 from urllib.parse import urlparse
+import threading
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,22 +31,30 @@ class ContactViewSet(viewsets.ModelViewSet):
     # Restrict public API to POST only
     http_method_names = ['post', 'head', 'options']
 
+    def _send_contact_notification(self, contact):
+        try:
+            send_mail(
+                subject=f'New Portfolio Contact: {contact.name}',
+                message=f'Name: {contact.name}\nEmail: {contact.email}\nMessage: {contact.message}',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[settings.ADMIN_EMAIL],
+                fail_silently=False,
+            )
+        except Exception:
+            # Log the error but keep API request successful.
+            logger.error("Email sending failed", exc_info=True)
+
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             contact = serializer.save()
-            
-            try:
-                send_mail(
-                    subject=f'New Portfolio Contact: {contact.name}',
-                    message=f'Name: {contact.name}\nEmail: {contact.email}\nMessage: {contact.message}',
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[settings.ADMIN_EMAIL],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                # Log the error but don't fail the request
-                logger.error("Email sending failed", exc_info=True)
+
+            # Avoid request timeouts when SMTP is slow/unavailable in production.
+            threading.Thread(
+                target=self._send_contact_notification,
+                args=(contact,),
+                daemon=True,
+            ).start()
             
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
