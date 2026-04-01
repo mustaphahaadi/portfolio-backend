@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from django.core.mail import send_mail
 from django.conf import settings
 from urllib.parse import urlparse
@@ -25,6 +26,7 @@ class ContactViewSet(viewsets.ModelViewSet):
     """Contact form — public can only POST (create). Admin can view all."""
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
+    permission_classes = [AllowAny]
     # Restrict public API to POST only
     http_method_names = ['post', 'head', 'options']
 
