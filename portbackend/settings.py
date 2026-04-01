@@ -21,6 +21,16 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',') if host.strip()]
 
+
+def parse_origin_list(env_name, default=''):
+    """Parse comma-separated origins and normalize trailing slashes."""
+    values = []
+    for item in os.getenv(env_name, default).split(','):
+        origin = item.strip().rstrip('/')
+        if origin and origin not in values:
+            values.append(origin)
+    return values
+
 if not DEBUG and SECRET_KEY == 'django-insecure-default-key-change-in-production':
     raise ValueError('DJANGO_SECRET_KEY must be set to a secure value in production')
 
@@ -145,11 +155,10 @@ REST_FRAMEWORK = {
 }
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = os.getenv(
+CORS_ALLOWED_ORIGINS = parse_origin_list(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175'
-).split(',')
-CORS_ALLOWED_ORIGINS = [origin.strip() for origin in CORS_ALLOWED_ORIGINS if origin.strip()]
+    'http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175,https://mustaphahaadi.vercel.app'
+)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -181,9 +190,10 @@ CACHES = {
 }
 
 # CSRF trusted origins (important when frontend and backend are on different domains)
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip() for origin in os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if origin.strip()
-]
+CSRF_TRUSTED_ORIGINS = parse_origin_list(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173,https://mustaphahaadi.vercel.app,https://web-production-4cafe.up.railway.app'
+)
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
