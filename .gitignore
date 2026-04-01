@@ -47,3 +47,4 @@ venv/
 env/
 .venv/*
 .env/*
+.env.production/*
